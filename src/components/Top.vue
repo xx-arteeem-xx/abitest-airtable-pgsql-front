@@ -1,5 +1,12 @@
 <script>
     export default {
+        data(){
+            return {
+                error: "",
+                message: "",
+                loading: false,
+            }
+        },
         methods: {
             logout(){
                 document.cookie = 'api_token=; Max-Age=-1;';
@@ -22,6 +29,33 @@
                 // || __________________  ПОЛУЧАЕМ ОТВЕТ  _______________________ || 
                 const result = await response.json();
                 return result;
+            },
+            async storeToDB() {
+                this.loading = true;
+
+                const headers = new Headers();
+                headers.append('Access-Control-Allow-Origin', '*');
+                headers.append('Access-Control-Allow-Credentials', 'true');
+                headers.append('GET', 'POST', 'OPTIONS');
+                headers.append('Authorization', `Bearer ${document.cookie.split("=")[1]}`);
+                const url = `${import.meta.env.VITE_API_URL}/api/get/update`;
+
+                // || __________________  ОТПРАВЛЯЕМ ЗАПРОС  _______________________ || 
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: headers
+                });
+
+                // || __________________  ПОЛУЧАЕМ ОТВЕТ  _______________________ || 
+                const result = await response.json();
+
+                this.loading = false;
+
+                if (result.error) {
+                    this.error = result.error
+                } else {
+                    this.message = "Данные успешно синхронизированы!"
+                }
             }
         },
         async mounted() {
@@ -39,6 +73,7 @@
                 this.logout()
             }
         },
+        
     }
 </script>
 
@@ -61,7 +96,26 @@
                 Выйти
             </button>
         </div>
+
     </div>
+
+    <div class="container">
+        <div class="spinner-border text-info" role="status" v-if="loading">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+
+        <div class="alert alert-success" role="alert" v-if="message != ''">
+            <i class="fa-solid fa-circle-check"></i>
+            {{ message }}
+        </div>
+
+        <div class="alert alert-danger" role="alert" v-if="error != ''">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            {{ error }}
+        </div>
+    </div>
+
+
 </template>
 
 <style>
