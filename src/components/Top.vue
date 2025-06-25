@@ -32,6 +32,8 @@
             },
             async storeToDB() {
                 this.loading = true;
+                this.error = "";
+                this.message = "";
 
                 const headers = new Headers();
                 headers.append('Access-Control-Allow-Origin', '*');
